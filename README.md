@@ -13,6 +13,23 @@
 
 ---
 
+## What is it?
+
+Halyard is a feature flag and rollout engine that lets teams turn features on or off in a live application without redeploying code. 
+
+Meaning? Shipping code and releasing a feature are two different things. Halyard separates them: a new checkout flow can go out hidden, be tested on a small group, and be switched off instantly if something breaks, with no emergency redeploy.
+
+The dashboard and SDK are written in raw HTML5, CSS3, and vanilla ES6+ JavaScript with no UI framework. The backend runs on PostgreSQL with SQLAlchemy, JWT and refresh-token auth for admins, hashed API keys for SDK clients, and a Dockerized, pytest-covered pipeline with GitHub Actions CI.
+
+---
+
+
+## Architecture
+
+![Architecture](asset/halyard_architecture.svg)
+
+---
+
 | Layer             | Technology                                     |
 |-------------------|------------------------------------------------|
 | Language          | Python 3.14+, HTML5, Raw CSS3, Vanilla ES6+ JS |
@@ -26,8 +43,4 @@
 
 ---
 
-## Architecture
-
-![Architecture](asset/halyard_architecture.svg)
-
----
+## Getting Started
