@@ -1,5 +1,5 @@
 ![halyard](asset/halyard_logo_main.svg)
-> A production level, lightweight, and rapid webhook normalization tool.
+> A production-grade zero-dependency feature flag engine.
 
 [![.github/workflows/Continuous%20Integration.yml](https://img.shields.io/github/actions/workflow/status/bugra-ozer/adze/Continuous%20Integration.yml?style=flat-square&logo=github&label=Continuous%20Integration)](https://github.com/bugra-ozer/adze/Continuous%20Integration.yml)
 ![Python](https://img.shields.io/badge/Python-v3.14%2B-3776AB?style=flat-square&logo=python&logoColor=white&color=3776AB)
@@ -20,3 +20,11 @@
 | Auth and Security | `bcrypt`, `PyJWT`, `secrets`, `hashlib`        |
 | Config            | python-dotenv                                  |
 | Deployment        |                                                |
+
+---
+
+## Architecture
+
+![Architecture](asset/halyard_architecture.svg)
+
+---
