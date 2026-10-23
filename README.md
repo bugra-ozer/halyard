@@ -3,6 +3,9 @@
 
 [![.github/workflows/Continuous%20Integration.yml](https://img.shields.io/github/actions/workflow/status/bugra-ozer/adze/Continuous%20Integration.yml?style=flat-square&logo=github&label=Continuous%20Integration)](https://github.com/bugra-ozer/adze/Continuous%20Integration.yml)
 ![Python](https://img.shields.io/badge/Python-v3.14%2B-3776AB?style=flat-square&logo=python&logoColor=white&color=3776AB)
+![HTML](https://img.shields.io/badge/HTML-v5-E34F26?style=flat-square&logo=html5&logoColor=white)
+![CSS](https://img.shields.io/badge/CSS-v3-1572B6?style=flat-square&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-vECMA-F7DF1E?style=flat-square&logo=javascript&logoColor=black)
 ![Flask](https://img.shields.io/badge/v3.1.3%2B-3776AB?style=flat-square&logo=FastAPI&label=FastAPI)
 ![PostgreSQL](https://img.shields.io/badge/v18.6%2B-3776AB?style=flat-square&logo=PostgreSQL&label=PostgreSQL&logoColor=white)
 ![Docker](https://img.shields.io/badge/v29.6.2%2B-3776AB?style=flat-square&logo=Docker&label=Docker&logoColor=white)
