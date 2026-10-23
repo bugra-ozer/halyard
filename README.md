@@ -30,6 +30,8 @@ The dashboard and SDK are written in raw HTML5, CSS3, and vanilla ES6+ JavaScrip
 
 ---
 
+## Tech Stack
+
 | Layer             | Technology                                     |
 |-------------------|------------------------------------------------|
 | Language          | Python 3.14+, HTML5, Raw CSS3, Vanilla ES6+ JS |
