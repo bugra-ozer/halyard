@@ -1,0 +1,22 @@
+[project]
+name = "halyard-backend"
+version = "0.1.0"
+description = "FastAPI backend"
+readme = "README.md"
+authors = [
+    { name = "bugra-ozer", email = "bugra.o@outlook.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.162.0",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[tool.uv]
+package = false
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+]
