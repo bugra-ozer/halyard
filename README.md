@@ -1,7 +1,7 @@
 ![halyard](asset/halyard_logo_main.svg)
 > A production-grade zero-dependency feature flag engine.
 
-[![.github/workflows/Continuous%20Integration.yml](https://img.shields.io/github/actions/workflow/status/bugra-ozer/adze/Continuous%20Integration.yml?style=flat-square&logo=github&label=Continuous%20Integration)](https://github.com/bugra-ozer/adze/Continuous%20Integration.yml)
+[![Backend CI](https://img.shields.io/github/actions/workflow/status/bugra-ozer/halyard/backend.yml?style=flat-square&logo=github&label=Backend)](https://github.com/bugra-ozer/halyard/actions/workflows/backend.yml)
 ![Python](https://img.shields.io/badge/Python-v3.14%2B-3776AB?style=flat-square&logo=python&logoColor=white&color=3776AB)
 ![HTML](https://img.shields.io/badge/HTML-v5-E34F26?style=flat-square&logo=html5&logoColor=white)
 ![CSS](https://img.shields.io/badge/CSS-v3-1572B6?style=flat-square&logo=css3&logoColor=white)
