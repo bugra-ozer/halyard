@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: halyard_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: halyard_user
+      POSTGRES_PASSWORD: halyard_password
+      POSTGRES_DB: halyard_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
