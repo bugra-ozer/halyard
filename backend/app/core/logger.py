@@ -5,9 +5,9 @@ import logging, pathlib as pl
 class LogHandler():
     """Class for configuring logs shape and internal"""
 
-    def __init__(self, directory='core', filename='log.log'):
+    def __init__(self, directory='logs', filename='log.log'):
         self.filename=filename
-        self.path=pl.Path(__file__).parent.parent / directory / filename
+        self.path=pl.Path(__file__).parent.parent.parent / directory / filename
         pl.Path.mkdir(self.path.parent, parents=True, exist_ok=True)
         logging.basicConfig(level=logging.INFO, format=con.LOG_FORMAT)
         self.logger=logging.getLogger()
