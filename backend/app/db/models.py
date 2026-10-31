@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text
+from sqlalchemy import Column, JSON, Integer, String, Boolean, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
@@ -17,9 +17,11 @@ class FeatureFlag(Base):
     __tablename__ = "feature_flags"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), unique=True, index=True, nullable=False)
+    flag_key = Column(String(100), unique=True, index=True, nullable=False)
     description = Column(Text, nullable=True)
     enabled = Column(Boolean, default=False, nullable=False)
+    rollout_percentage = Column(Integer, default=0, nullable=False)
+    target_users = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
