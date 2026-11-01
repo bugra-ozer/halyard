@@ -1,1 +1,19 @@
 URL_TEST="http://test"
+TEST_USER_STR= "robert"
+TEST_USER_ID="xtpr"
+TEST_USER_ID_EMPTY=""
+TEST_TARGET_EXC={TEST_USER_STR}
+TEST_TARGET_INC= {TEST_USER_STR, TEST_USER_ID}
+TEST_FLAG_KEY= "feat_click"
+TEST_FALLOUT_Q=25
+TEST_FALLOUT_Q2=50
+TEST_FALLOUT_MAX=100
+TEST_FALLOUT_MIN=0
+
+
+#Strings
+KEY_EXC= "target_user_exc"
+KEY_INC= "target_user_inc"
+KEY_USER_ID= "user_id"
+KEY_EVALUATOR= "evaluator"
+KEY_FLAG_KEY="flag_key"
