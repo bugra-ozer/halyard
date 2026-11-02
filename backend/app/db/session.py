@@ -1,6 +1,7 @@
-import os, constant as con
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from app.db import constant as con
+import os
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
