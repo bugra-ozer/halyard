@@ -109,6 +109,7 @@ dependencies = [
     { name = "fastapi" },
     { name = "psycopg", extra = ["binary"] },
     { name = "psycopg2-binary" },
+    { name = "pydantic" },
     { name = "sqlalchemy" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -125,6 +126,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.162.0" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.6" },
     { name = "psycopg2-binary", specifier = "==2.9.13" },
+    { name = "pydantic", specifier = ">=2.14.1" },
     { name = "sqlalchemy", specifier = "==2.1.6" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.54.0" },
 ]
