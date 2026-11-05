@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
 from app.db.models import FeatureFlag
-from app.schemas.flag import Flag, FlagUpdate
+from app.schemas.flags import FlagCreate, FlagUpdate
 from sqlalchemy import select
 import constant as con
 
-def create_flag(db: Session, flag_data:Flag):
+def create_flag(db: Session, flag_data:FlagCreate):
     """Insert a new feature flag.
 
     Args:
