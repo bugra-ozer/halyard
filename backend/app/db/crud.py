@@ -3,6 +3,7 @@ from app.db.models import FeatureFlag
 from app.schemas.flag import Flag, FlagUpdate
 from sqlalchemy import select
 import constant as con
+from app.db.models import User
 
 def create_flag(db: Session, flag_data:Flag):
     """Insert a new feature flag.
@@ -121,3 +122,18 @@ def update_flag(db: Session, flag_key:str, update_data:FlagUpdate)->FeatureFlag|
     db.commit()
     db.refresh(db_flag)
     return db_flag
+
+def create_user(db, registration, hashed_password):
+    username = registration.username
+    email = registration.email
+
+    db_user = User(username=username, email=email, hashed_password=hashed_password)
+
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+def get_user_by_username(db: Session, username: str):
+    stmt = select(User).where(User.username == username)
+    return db.scalar(stmt)
