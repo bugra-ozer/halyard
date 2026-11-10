@@ -29,6 +29,9 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+    env:
+      DATABASE_URL: postgresql+psycopg://halyard_user:halyard_password@localhost:5432/halyard_db
+
     defaults:
       run:
         working-directory: backend
@@ -43,9 +46,11 @@ jobs:
         run: uv python install
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --frozen
+
+      - name: Alembic migrations
+        run: uv run alembic upgrade head
 
       - name: Run tests
-        env:
-          DATABASE_URL: postgresql+psycopg://halyard_user:halyard_password@localhost:5432/halyard_db
+
         run: uv run pytest
