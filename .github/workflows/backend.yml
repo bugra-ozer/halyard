@@ -13,6 +13,22 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: halyard_user
+          POSTGRES_PASSWORD: halyard_password
+          POSTGRES_DB: halyard_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     defaults:
       run:
         working-directory: backend
@@ -30,4 +46,6 @@ jobs:
         run: uv sync
 
       - name: Run tests
+        env:
+          DATABASE_URL: postgresql+psycopg://halyard_user:halyard_password@localhost:5432/halyard_db
         run: uv run pytest
