@@ -3,9 +3,10 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 from app.db import constant as con
 import os
 
+DATABASE_URL_LOCAL=con.DATABASE_URL_LOCAL
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    con.DATABASE_URL_LOCAL
+    DATABASE_URL_LOCAL
 )
 
 engine = create_engine(DATABASE_URL, echo=True)
