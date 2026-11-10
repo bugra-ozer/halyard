@@ -17,3 +17,24 @@ KEY_INC= "target_user_inc"
 KEY_USER_ID= "user_id"
 KEY_EVALUATOR= "evaluator"
 KEY_FLAG_KEY="flag_key"
+
+
+# Test flags
+TEST_FLAG_SUCCESS=\
+    {
+  "flag_key": "beta_dashboard",
+  "enabled": True,
+  "rollout_percentage": 100
+    }
+TEST_FLAG_PYDANTIC_FAIL_ONE=\
+    {
+  "flag_key": "beta_dashboard",
+  "enabled": True,
+  "rollout_percentage": 200
+    }
+TEST_FLAG_PYDANTIC_FAIL_TWO=\
+    {
+  "enabled": True,
+  "rollout_percentage": 100
+    }
+

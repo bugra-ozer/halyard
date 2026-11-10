@@ -1,4 +1,4 @@
-DATABASE_URL_LOCAL="postgresql+psycopg://halyard_user:halyard_password@postgres:5432/halyard_db"
+DATABASE_URL_LOCAL="postgresql+psycopg://halyard_user:halyard_password@localhost:5432/halyard_db"
 
 # CRUD
 
