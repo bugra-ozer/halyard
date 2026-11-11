@@ -1,5 +1,5 @@
 from app.db.session import get_db
-from app.api.constant import FLAG
+from app.api.constant import FLAGS
 from app.main import app
 from fastapi.testclient import TestClient
 import pytest, constant as con
@@ -8,7 +8,7 @@ import pytest, constant as con
 def config():
     """Provide a TestClient and the flag endpoint path for tests."""
     client=TestClient(app)
-    endpoint="/" + FLAG + "/"
+    endpoint="/" + FLAGS + "/"
     return client, endpoint
 
 def test_create_flag_success(db_session, config):

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.api import constant as con
 
-router = APIRouter(prefix="/"+con.FLAG, tags=[con.FLAG])
+router = APIRouter(prefix="/"+con.FLAGS, tags=[con.FLAGS])
 @router.post("/", response_model=FlagResponse, status_code=status.HTTP_201_CREATED)
 def create_flag(schema: FlagCreate, session:Session=Depends(get_db))->FlagResponse:
     """Create a new feature flag.
