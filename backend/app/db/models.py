@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, UTC
 from sqlalchemy import Column, JSON, Integer, String, Boolean, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from app.db.session import Base
@@ -11,7 +11,7 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
 class FeatureFlag(Base):
     __tablename__ = "feature_flags"
@@ -22,8 +22,8 @@ class FeatureFlag(Base):
     enabled = Column(Boolean, default=False, nullable=False)
     rollout_percentage = Column(Integer, default=0, nullable=False)
     target_users = Column(JSON, nullable=True)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
+    updated_at = Column(DateTime, default=lambda: datetime.now(UTC), onupdate=lambda: datetime.now(UTC))
 
     rules = relationship("Rule", back_populates="feature_flag", cascade="all, delete-orphan")
 
@@ -36,6 +36,6 @@ class Rule(Base):
     rule_type = Column(String(50), nullable=False)
     conditions = Column(Text, nullable=False)
     enabled = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
     feature_flag = relationship("FeatureFlag", back_populates="rules")
