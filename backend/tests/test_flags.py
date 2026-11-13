@@ -1,6 +1,6 @@
 from app.db.models import FeatureFlag, Rule
 from app.db.session import get_db
-from app.api.constant import FLAGS
+from app.api.constant import EP_FLAGS
 from app.main import app
 from fastapi.testclient import TestClient
 import pytest, constant as con
@@ -9,7 +9,7 @@ import pytest, constant as con
 def config():
     """Provide a TestClient and the flag endpoint path for tests."""
     client=TestClient(app)
-    endpoint = "/" + FLAGS
+    endpoint = "/" + EP_FLAGS
     return client, endpoint
 
 #CREATE FLAG
@@ -73,17 +73,17 @@ def test_get_flag_success(db_session, config):
 
         response=client.get(endpoint)
         data=response.json()
-        rules=data["rules"][0]
-        assert data["id"]==fake_db_flag.id
-        assert data["enabled"]==True
-        assert data["flag_key"]==con.TEST_GET_FLAG_KEY
-        assert data["rollout_percentage"]==con.TEST_ROLLOUT_Q
-        assert data["target_users"]==con.TEST_FLAG_TARGET_U
-        assert data["description"]==con.TEST_FLAG_DESC
-        assert rules["enabled"]==con.TEST_RULE_ENABLED
-        assert rules["name"]==con.TEST_RULE_NAME
-        assert rules["conditions"]==con.TEST_RULE_COND
-        assert rules["rule_type"]==con.TEST_RULE_TYPE
+        rules=data[con.KEY_RULES][0]
+        assert data[con.KEY_ID]==fake_db_flag.id
+        assert data[con.KEY_ENABLED]==True
+        assert data[con.KEY_FLAG_KEY]==con.TEST_GET_FLAG_KEY
+        assert data[con.KEY_ROLLOUT_PERCENTAGE]==con.TEST_ROLLOUT_Q
+        assert data[con.KEY_TARGET_USERS]==con.TEST_FLAG_TARGET_U
+        assert data[con.KEY_DESCRIPTION]==con.TEST_FLAG_DESC
+        assert rules[con.KEY_ENABLED]==con.TEST_RULE_ENABLED
+        assert rules[con.KEY_NAME]==con.TEST_RULE_NAME
+        assert rules[con.KEY_CONDITIONS]==con.TEST_RULE_COND
+        assert rules[con.KEY_RULE_TYPE]==con.TEST_RULE_TYPE
         assert response.status_code==200
     finally:
         app.dependency_overrides.clear()
@@ -102,7 +102,7 @@ def test_get_flag_no_rule_success(db_session, config):
 
         response=client.get(endpoint)
         data=response.json()
-        rules=data["rules"]
+        rules=data[con.KEY_RULES]
         assert rules==[]
         assert response.status_code==200
     finally:
@@ -118,5 +118,42 @@ def test_get_flag_failure(db_session, config):
 
         response=client.get(endpoint)
         assert response.status_code==404
+    finally:
+        app.dependency_overrides.clear()
+
+def test_get_flags_success(db_session, config):
+    """Verify the server returned flags are same as in populated DB, no rules and status code 200."""
+    try:
+        client, endpoint = config
+        flag_key_one=con.TEST_GET_FLAG_KEY
+        flag_key_two=con.TEST_FLAG_KEY
+        endpoint += "/"
+        app.dependency_overrides[get_db] = lambda: db_session  # fixture session per test
+
+        fake_db_flag_one=FeatureFlag(flag_key=flag_key_one, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q, description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        fake_db_flag_two=FeatureFlag(flag_key=flag_key_two, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q, description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        db_session.add(fake_db_flag_one)
+        db_session.add(fake_db_flag_two)
+        db_session.commit()
+
+        response = client.get(endpoint)
+        data = response.json()
+        assert response.status_code == 200
+        assert len(data)==2
+        assert flag_key_one in data[0][con.KEY_FLAG_KEY] and flag_key_two in data[1][con.KEY_FLAG_KEY]
+    finally:
+        app.dependency_overrides.clear()
+
+def test_get_flags_failure(db_session, config):
+    """Verify the server returning no flags and no rules in non-populated DB, and status code 200."""
+    try:
+        client, endpoint = config
+        endpoint += "/"
+        app.dependency_overrides[get_db] = lambda: db_session  # fixture session per test
+
+        response = client.get(endpoint)
+        data = response.json()
+        assert len(data)==0
+        assert response.status_code == 200
     finally:
         app.dependency_overrides.clear()

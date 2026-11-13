@@ -11,13 +11,21 @@ TEST_ROLLOUT_MAX=100
 TEST_ROLLOUT_MIN=0
 
 
-#Strings
+#Keys
 KEY_EXC= "target_user_exc"
 KEY_INC= "target_user_inc"
 KEY_USER_ID= "user_id"
 KEY_EVALUATOR= "evaluator"
 KEY_FLAG_KEY="flag_key"
-
+KEY_RULES="rules"
+KEY_ID="id"
+KEY_ENABLED="enabled"
+KEY_ROLLOUT_PERCENTAGE="rollout_percentage"
+KEY_TARGET_USERS="target_users"
+KEY_DESCRIPTION="description"
+KEY_CONDITIONS="conditions"
+KEY_NAME="name"
+KEY_RULE_TYPE="rule_type"
 
 # Test flags
 

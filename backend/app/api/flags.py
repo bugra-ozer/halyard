@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.api import constant as con
 
-router = APIRouter(prefix="/"+con.FLAGS, tags=[con.FLAGS])
+router = APIRouter(prefix="/"+con.EP_FLAGS, tags=[con.EP_FLAGS])
 @router.post("/", response_model=FlagResponse, status_code=status.HTTP_201_CREATED)
 def create_flag(schema: FlagCreate, session:Session=Depends(get_db))->FlagResponse:
     """Create a new feature flag.
@@ -39,7 +39,7 @@ def create_flag(schema: FlagCreate, session:Session=Depends(get_db))->FlagRespon
     session.refresh(flag_orm)
     return flag_orm # noqa
 
-@router.get("/{flag_key}", response_model=FlagDetailResponse, status_code=status.HTTP_200_OK)
+@router.get("/"+con.EP_FLAG_KEY, response_model=FlagDetailResponse, status_code=status.HTTP_200_OK)
 def get_flag(flag_key:str, session:Session=Depends(get_db)):
     """Return a flag identified by flag_key.
 
@@ -59,3 +59,15 @@ def get_flag(flag_key:str, session:Session=Depends(get_db)):
 
     return feature_flag
 
+@router.get("/", response_model=list[FlagResponse], status_code=status.HTTP_200_OK)
+def get_flags(session:Session=Depends(get_db)):
+    """Return rules exclusive scalars of all flags in DB.
+
+    Args:
+        session: Database session injected via dependency.
+    Returns:
+        HTTPException: 404 Not Found, if no flag can not be found.
+    """
+    stmt=select(FeatureFlag)
+    feature_flags=session.scalars(stmt).all()
+    return feature_flags
