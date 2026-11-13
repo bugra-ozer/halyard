@@ -1,5 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
+from typing import Any
 
 class FlagCreate(BaseModel):
     """A feature flag as supplied by a client.
@@ -20,7 +21,8 @@ class FlagCreate(BaseModel):
     flag_key: str
     enabled: bool
     rollout_percentage: int = Field(default=0, ge=0, le=100)
-    target_users: set[str] | None = None
+    target_users: list[str] | None = None
+    description: str | None = None
 
 class FlagUpdate(BaseModel):
     """Partial-update payload for an existing flag.
@@ -36,7 +38,7 @@ class FlagUpdate(BaseModel):
     """
     enabled: bool | None = None
     rollout_percentage: int | None = Field(default=None, ge=0, le=100)
-    target_users: set[str] | None = None
+    target_users: list[str] | None = None
     description: str | None = None
 
 class FlagResponse(BaseModel):
@@ -47,6 +49,30 @@ class FlagResponse(BaseModel):
         created_at: Timestamp recorded when the flag row was first inserted.
     """
     id: int
+    flag_key: str
+    enabled: bool
+    rollout_percentage: int = Field(default=0, ge=0, le=100)
+    target_users: list[str] | None = None
+    description: str | None = None
+    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
+
+class FlagDetailResponse(FlagResponse):
+    """Serialized representation of a flag with rules as returned to clients."""
+    rules: list[RulesResponse] = []
+
+class RulesResponse(BaseModel):
+    """Serialized representation of a rule as returned to clients.
+
+    Attributes:
+        id: Database-assigned primary key of the rule.
+        created_at: Timestamp recorded when the rule row was first inserted.
+    """
+    id: int
+    name: str
+    rule_type: str
+    conditions: dict[str, Any]
+    enabled: bool
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 

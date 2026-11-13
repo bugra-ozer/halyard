@@ -10,42 +10,42 @@ def test_enabled_false(config):
     """Tests if class returns False while rest of the settings are set to be True."""
     config_dict=config
     evaluator, user_id, flag_key, targets=config_dict[con.KEY_EVALUATOR], config_dict[con.KEY_USER_ID], config_dict[con.KEY_FLAG_KEY], config_dict[con.KEY_INC]
-    result=evaluator.evaluate(flag_key, False, con.TEST_FALLOUT_MAX, targets, user_id)
+    result=evaluator.evaluate(flag_key, False, con.TEST_ROLLOUT_MAX, targets, user_id)
     assert result==False
     
 def test_user_id_in_target_users(config):
     """Tests that a user in the target users list is enabled."""
     config_dict=config
     evaluator, user_id, flag_key, targets=config_dict[con.KEY_EVALUATOR], config_dict[con.KEY_USER_ID], config_dict[con.KEY_FLAG_KEY], config_dict[con.KEY_INC]
-    result=evaluator.evaluate(flag_key, True, con.TEST_FALLOUT_MIN, targets, user_id)
+    result=evaluator.evaluate(flag_key, True, con.TEST_ROLLOUT_MIN, targets, user_id)
     assert result==True
 
 def test_rollout_min(config):
     """Tests rollout at the minimum fallout value for an excluded-target user."""
     config_dict=config
     evaluator, user_id, flag_key, targets=config_dict[con.KEY_EVALUATOR], config_dict[con.KEY_USER_ID], config_dict[con.KEY_FLAG_KEY], config_dict[con.KEY_EXC]
-    result=evaluator.evaluate(flag_key, True, con.TEST_FALLOUT_MIN, targets, user_id)
+    result=evaluator.evaluate(flag_key, True, con.TEST_ROLLOUT_MIN, targets, user_id)
     assert result==False
 
 def test_rollout_max(config):
     """Tests rollout at the maximum fallout value for an excluded-target user."""
     config_dict = config
     evaluator, user_id, flag_key, targets = config_dict[con.KEY_EVALUATOR], config_dict[con.KEY_USER_ID], config_dict[con.KEY_FLAG_KEY], config_dict[con.KEY_EXC]
-    result = evaluator.evaluate(flag_key, True, con.TEST_FALLOUT_MAX, targets, user_id)
+    result = evaluator.evaluate(flag_key, True, con.TEST_ROLLOUT_MAX, targets, user_id)
     assert result == True
 
 def test_rollout_mid_empty_user(config):
     """Tests mid-range rollout values with an empty user ID."""
     config_dict = config
     evaluator, user_id, flag_key, targets = config_dict[con.KEY_EVALUATOR], con.TEST_USER_ID_EMPTY, config_dict[con.KEY_FLAG_KEY], config_dict[con.KEY_EXC]
-    result_one = evaluator.evaluate(flag_key, True, con.TEST_FALLOUT_Q, targets, user_id)
-    result_two = evaluator.evaluate(flag_key, True, con.TEST_FALLOUT_Q2, targets, user_id)
+    result_one = evaluator.evaluate(flag_key, True, con.TEST_ROLLOUT_Q, targets, user_id)
+    result_two = evaluator.evaluate(flag_key, True, con.TEST_ROLLOUT_Q2, targets, user_id)
     assert result_one == False and result_two == False
 
 def test_rollout_mid(config):
     """Tests mid-range rollout values for a normal user ID."""
     config_dict = config
     evaluator, user_id, flag_key, targets = config_dict[con.KEY_EVALUATOR], con.TEST_USER_ID, config_dict[con.KEY_FLAG_KEY], config_dict[con.KEY_EXC]
-    result_one = evaluator.evaluate(flag_key, True, con.TEST_FALLOUT_Q, targets, user_id)
-    result_two = evaluator.evaluate(flag_key, True, con.TEST_FALLOUT_Q2, targets, user_id)
+    result_one = evaluator.evaluate(flag_key, True, con.TEST_ROLLOUT_Q, targets, user_id)
+    result_two = evaluator.evaluate(flag_key, True, con.TEST_ROLLOUT_Q2, targets, user_id)
     assert result_one == False and result_two == True

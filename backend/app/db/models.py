@@ -34,7 +34,7 @@ class Rule(Base):
     feature_flag_id = Column(Integer, ForeignKey("feature_flags.id"), nullable=False)
     name = Column(String(100), nullable=False)
     rule_type = Column(String(50), nullable=False)
-    conditions = Column(Text, nullable=False)
+    conditions = Column(JSON, nullable=False)
     enabled = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=lambda: datetime.now(UTC))
 
