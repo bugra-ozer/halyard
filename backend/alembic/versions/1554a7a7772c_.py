@@ -1,8 +1,8 @@
-"""Initial tables
+"""empty message
 
-Revision ID: a3aa0b99e7e5
+Revision ID: 1554a7a7772c
 Revises: 
-Create Date: 2026-11-02 13:44:42.866620
+Create Date: 2026-11-12 17:17:15.303081
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'a3aa0b99e7e5'
+revision: str = '1554a7a7772c'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -51,7 +51,7 @@ def upgrade() -> None:
     sa.Column('feature_flag_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('rule_type', sa.String(length=50), nullable=False),
-    sa.Column('conditions', sa.Text(), nullable=False),
+    sa.Column('conditions', sa.JSON(), nullable=False),
     sa.Column('enabled', sa.Boolean(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['feature_flag_id'], ['feature_flags.id'], ),
