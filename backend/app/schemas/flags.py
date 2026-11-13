@@ -40,6 +40,7 @@ class FlagUpdate(BaseModel):
     rollout_percentage: int | None = Field(default=None, ge=0, le=100)
     target_users: list[str] | None = None
     description: str | None = None
+    model_config = ConfigDict(extra="forbid")
 
 class FlagResponse(BaseModel):
     """Serialized representation of a flag as returned to clients.
