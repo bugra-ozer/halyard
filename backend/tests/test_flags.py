@@ -121,8 +121,10 @@ def test_get_flag_failure(db_session, config):
     finally:
         app.dependency_overrides.clear()
 
+# GET FLAGS
+
 def test_get_flags_success(db_session, config):
-    """Verify the server returned flags are same as in populated DB, no rules and status code 200."""
+    """Verify the server returns flags are same as in populated DB, no rules and status code 200."""
     try:
         client, endpoint = config
         flag_key_one=con.TEST_GET_FLAG_KEY
@@ -155,5 +157,65 @@ def test_get_flags_failure(db_session, config):
         data = response.json()
         assert len(data)==0
         assert response.status_code == 200
+    finally:
+        app.dependency_overrides.clear()
+
+# PATCH FLAG
+
+def test_patch_flag_success(db_session, config):
+    """Verify the server patching given existing flag and returns status code 200."""
+    try:
+        client, endpoint = config
+        flag_key=con.TEST_GET_FLAG_KEY
+        endpoint += "/" + flag_key
+        app.dependency_overrides[get_db] = lambda: db_session  # fixture session per test
+
+        fake_db_flag=FeatureFlag(flag_key=flag_key, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q, description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        db_session.add(fake_db_flag)
+        db_session.commit()
+
+        patch_json={con.KEY_ROLLOUT_PERCENTAGE: con.TEST_ROLLOUT_Q2}
+
+        response = client.patch(endpoint, json=patch_json)
+        data = response.json()
+        assert data[con.KEY_ROLLOUT_PERCENTAGE]==con.TEST_ROLLOUT_Q2
+        assert response.status_code == 200
+    finally:
+        app.dependency_overrides.clear()
+
+def test_patch_flag_failure(db_session, config):
+    """Verify the server gracefully returns status code 404."""
+    try:
+        client, endpoint = config
+        flag_key=con.TEST_GET_FLAG_KEY
+        endpoint += "/" + flag_key
+        app.dependency_overrides[get_db] = lambda: db_session  # fixture session per test
+
+        patch_json={con.KEY_ROLLOUT_PERCENTAGE: con.TEST_ROLLOUT_Q2}
+
+        response = client.patch(endpoint, json=patch_json)
+        assert response.status_code == 404
+    finally:
+        app.dependency_overrides.clear()
+
+def test_patch_flag_false_type(db_session, config):
+    """Verify the server false data type patching attempt falls into Pydantic status code 422."""
+    try:
+        client, endpoint = config
+        flag_key=con.TEST_GET_FLAG_KEY
+        endpoint += "/" + flag_key
+        app.dependency_overrides[get_db] = lambda: db_session  # fixture session per test
+
+        fake_db_flag=FeatureFlag(flag_key=flag_key, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q, description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        db_session.add(fake_db_flag)
+        db_session.commit()
+
+        patch_one={con.KEY_ROLLOUT_PERCENTAGE: con.TEST_FLAG_DESC}
+        patch_two={con.TEST_FLAG_KEY: con.TEST_RULE_NAME}
+
+        response_one = client.patch(endpoint, json=patch_one)
+        response_two = client.patch(endpoint, json=patch_two)
+        assert response_one.status_code == 422
+        assert response_two.status_code == 422
     finally:
         app.dependency_overrides.clear()
