@@ -137,3 +137,7 @@ def create_user(db, registration, hashed_password):
 def get_user_by_username(db: Session, username: str):
     stmt = select(User).where(User.username == username)
     return db.scalar(stmt)
+
+def get_user_by_email(db: Session, email: str):
+    stmt = select(User).where(User.email == email)
+    return db.scalar(stmt)
