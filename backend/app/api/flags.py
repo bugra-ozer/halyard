@@ -97,3 +97,24 @@ def patch_flag(flag_patch:FlagUpdate, flag_key:str, session:Session=Depends(get_
     session.refresh(feature_flag)
     return feature_flag
 
+@router.delete("/"+con.EP_FLAG_KEY, status_code=status.HTTP_204_NO_CONTENT)
+def delete_flag(flag_key:str, session:Session=Depends(get_db)):
+    """Delete a specific flag with optional parameters.
+
+    Args:
+        flag_key: Key to be updated given in the URL.
+        session: Database session injected via dependency.
+
+    Returns:
+        Deleted flag.
+
+    Raises:
+        HTTPException: 404 Not Found, if no flag can not be found.
+    """
+    stmt = select(FeatureFlag).where(FeatureFlag.flag_key == flag_key)
+    feature_flag=session.scalar(stmt)
+    if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_KEY_FOUND)
+
+    session.delete(feature_flag)
+    session.commit()
+    return None

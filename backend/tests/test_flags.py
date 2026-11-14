@@ -3,7 +3,9 @@ from app.db.session import get_db
 from app.api.constant import EP_FLAGS
 from app.main import app
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 import pytest, constant as con
+
 
 @pytest.fixture()
 def config():
@@ -217,5 +219,43 @@ def test_patch_flag_false_type(db_session, config):
         response_two = client.patch(endpoint, json=patch_two)
         assert response_one.status_code == 422
         assert response_two.status_code == 422
+    finally:
+        app.dependency_overrides.clear()
+
+# DELETE FLAG
+
+def test_delete_flag_success(db_session, config):
+    """Verify deleting a flag and return 204."""
+    try:
+        client, endpoint = config
+        flag_key=con.TEST_GET_FLAG_KEY
+        endpoint+="/" + flag_key
+        app.dependency_overrides[get_db] = lambda: db_session # fixture session per test
+
+        fake_db_flag=FeatureFlag(flag_key=flag_key, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q, description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        db_session.add(fake_db_flag)
+        db_session.commit()
+
+        response=client.delete(endpoint)
+        stmt = select(FeatureFlag).where(FeatureFlag.flag_key == flag_key)
+        feature_flag = db_session.scalar(stmt)
+        assert feature_flag is None
+        assert response.status_code==204
+    finally:
+        app.dependency_overrides.clear()
+
+def test_delete_flag_failure(db_session,  config):
+    """Verify deleting a non-existing flag returns 404."""
+    try:
+        client, endpoint = config
+        flag_key=con.TEST_GET_FLAG_KEY
+        endpoint+="/" + flag_key
+        app.dependency_overrides[get_db] = lambda: db_session # fixture session per test
+
+        response=client.delete(endpoint)
+        stmt = select(FeatureFlag).where(FeatureFlag.flag_key == flag_key)
+        feature_flag = db_session.scalar(stmt)
+        assert feature_flag is None
+        assert response.status_code==404
     finally:
         app.dependency_overrides.clear()
