@@ -11,7 +11,7 @@ from app.db.crud import create_user, get_user_by_username, get_user_by_email
 from fastapi import Depends
 from passlib.context import CryptContext
 from fastapi import HTTPException
-from jose import jwt
+import jwt
 
 app=FastAPI()
 log_handler=logger.LogHandler()
