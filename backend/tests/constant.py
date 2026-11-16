@@ -56,3 +56,26 @@ TEST_RULE_NAME="UK_Beta"
 TEST_RULE_TYPE="attribute_match"
 TEST_RULE_COND={"user_country": "UK", "user_region": "England"}
 TEST_RULE_ENABLED=True
+
+     # POST /flags/{flag_key}/rules
+TEST_RULE_SUCCESS= \
+    {
+        "name": "UK Beta Testers",
+        "rule_type": "attribute_match",
+        "conditions": {
+            "country": "UK",
+            "plan": "pro"
+        },
+        "enabled": True
+    }
+
+TEST_RULE_FAILURE= \
+    {
+        "name": "UK Beta Testers",
+        "rule_type": "attribute_match",
+        "conditions": {
+            "country": "UK",
+            "plan": "pro"
+        },
+        "enabled": 52
+    }

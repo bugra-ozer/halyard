@@ -1,8 +1,8 @@
 from fastapi import status, HTTPException
 from fastapi import APIRouter, Depends
 from app.db.session import get_db
-from app.db.models import FeatureFlag
-from app.schemas.flags import FlagResponse, FlagUpdate, FlagCreate, FlagDetailResponse
+from app.db.models import FeatureFlag, Rule
+from app.schemas.flags import FlagResponse, FlagUpdate, FlagCreate, FlagDetailResponse, RuleCreate, RulesResponse
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.api import constant as con
@@ -118,3 +118,38 @@ def delete_flag(flag_key:str, session:Session=Depends(get_db)):
     session.delete(feature_flag)
     session.commit()
     return None
+
+@router.post("/"+con.EP_FLAG_KEY+"/"+con.EP_RULES, response_model=RulesResponse, status_code=status.HTTP_201_CREATED)
+def create_rule(flag_key:str, schema: RuleCreate, session:Session=Depends(get_db)):
+    """Create a new rules for flag in URL.
+
+    Persists rules derived from the provided pydantic payload,
+    storing its attributes.
+
+    Args:
+        flag_key: Flag identifier in URL.
+        schema: Validated payload describing the rules to create.
+        session: Database session injected via dependency.
+
+    Returns:
+        RuleResponse: The newly created rules, refreshed from the database.
+
+    Raises:
+        HTTPException: 409 Conflict if a flag with the same ``flag_key`` does not exist.
+    """
+    stmt = select(FeatureFlag).where(FeatureFlag.flag_key == flag_key)
+    feature_flag = session.scalar(stmt)
+    if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_KEY_FOUND)
+
+    rule_orm = Rule(feature_flag_id=feature_flag.id,
+                    name=schema.name,
+                    rule_type=schema.rule_type,
+                    conditions=schema.conditions,
+                    enabled=schema.enabled,
+                    )
+    session.add(rule_orm)
+    session.commit()
+    session.refresh(rule_orm)
+
+    return rule_orm
+
