@@ -39,7 +39,7 @@ The dashboard and SDK are written in raw HTML5, CSS3, and vanilla ES6+ JavaScrip
 | Database Tools    |                                                |
 | Database Deploy   | PostgreSQL                                     |
 | Infra and Testing | Docker, `pytest`, GitHub Actions CI            |
-| Auth and Security | `bcrypt`, `PyJWT`, `secrets`, `hashlib`        |
+| Auth and Security | `bcrypt`, `PyJWT`, `secrets`, `passlib`        |
 | Config            | python-dotenv                                  |
 | Deployment        |                                                |
 
