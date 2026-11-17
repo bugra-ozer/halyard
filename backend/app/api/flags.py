@@ -2,7 +2,8 @@ from fastapi import status, HTTPException
 from fastapi import APIRouter, Depends
 from app.db.session import get_db
 from app.db.models import FeatureFlag, Rule
-from app.schemas.flags import FlagResponse, FlagUpdate, FlagCreate, FlagDetailResponse, RuleCreate, RulesResponse
+from app.schemas.flags import FlagResponse, FlagUpdate, FlagCreate, FlagDetailResponse, RuleCreate, RuleResponse, \
+    RuleUpdate
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from app.api import constant as con
@@ -52,7 +53,7 @@ def get_flag(flag_key:str, session:Session=Depends(get_db)):
     """
     stmt=select(FeatureFlag).where(FeatureFlag.flag_key==flag_key)
     feature_flag=session.scalar(stmt)
-    if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_KEY_FOUND)
+    if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_FLAG_KEY_FOUND)
 
     return feature_flag
 
@@ -87,7 +88,7 @@ def patch_flag(flag_patch:FlagUpdate, flag_key:str, session:Session=Depends(get_
     """
     stmt = select(FeatureFlag).where(FeatureFlag.flag_key == flag_key)
     feature_flag=session.scalar(stmt)
-    if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_KEY_FOUND)
+    if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_FLAG_KEY_FOUND)
 
     update_values=flag_patch.model_dump(exclude_unset=True)
     for k, v in update_values.items():
@@ -113,13 +114,13 @@ def delete_flag(flag_key:str, session:Session=Depends(get_db)):
     """
     stmt = select(FeatureFlag).where(FeatureFlag.flag_key == flag_key)
     feature_flag=session.scalar(stmt)
-    if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_KEY_FOUND)
+    if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_FLAG_KEY_FOUND)
 
     session.delete(feature_flag)
     session.commit()
     return None
 
-@router.post("/"+con.EP_FLAG_KEY+"/"+con.EP_RULES, response_model=RulesResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/" + con.EP_FLAG_KEY +"/" + con.EP_RULES, response_model=RuleResponse, status_code=status.HTTP_201_CREATED)
 def create_rule(flag_key:str, schema: RuleCreate, session:Session=Depends(get_db)):
     """Create a new rules for flag in URL.
 
@@ -139,7 +140,7 @@ def create_rule(flag_key:str, schema: RuleCreate, session:Session=Depends(get_db
     """
     stmt = select(FeatureFlag).where(FeatureFlag.flag_key == flag_key)
     feature_flag = session.scalar(stmt)
-    if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_KEY_FOUND)
+    if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_FLAG_KEY_FOUND)
 
     rule_orm = Rule(feature_flag_id=feature_flag.id,
                     name=schema.name,
@@ -152,4 +153,37 @@ def create_rule(flag_key:str, schema: RuleCreate, session:Session=Depends(get_db
     session.refresh(rule_orm)
 
     return rule_orm
+
+@router.patch("/" + con.EP_FLAG_KEY + "/" + con.EP_RULES + "/" + con.EP_RULE_ID, response_model=RuleResponse, status_code=status.HTTP_200_OK)
+def update_rule(flag_key:str, rule_id:int, rule_patch:RuleUpdate, session:Session=Depends(get_db)):
+    """Update a specific flag's rule(s) with optional parameters.
+
+    Args:
+        rule_id: Rule identifier.
+        flag_key: Key to be updated given in the URL.
+        rule_patch: Incoming rule schema object.
+        session: Database session injected via dependency.
+
+    Returns:
+        Updated rule.
+
+    Raises:
+        HTTPException: 404 Not Found, if no flag can not be found or rule belong to different flag.
+    """
+    stmt = select(FeatureFlag).where(FeatureFlag.flag_key == flag_key)
+    feature_flag=session.scalar(stmt)
+    if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_FLAG_KEY_FOUND)
+
+    stmt = select(Rule).where(Rule.id == rule_id, Rule.feature_flag_id == feature_flag.id) # check both rule_id and flag_id match
+    rule = session.scalar(stmt)
+    if not rule: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_RULE_FOUND)
+
+    update_values=rule_patch.model_dump(exclude_unset=True)
+    for k, v in update_values.items():
+        setattr(rule, k, v)
+
+    session.commit()
+    session.refresh(rule)
+    return rule
+
 

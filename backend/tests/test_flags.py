@@ -315,3 +315,72 @@ def test_create_rule_pydantic_failure(session, config):
         assert response.status_code == 422
     finally:
         app.dependency_overrides.clear()
+
+def test_patch_rule_success(session, config):
+    """Verify the server patching given existing rule, valid request and returns status code 200."""
+    try:
+        client, endpoint = config
+        flag_key = con.TEST_GET_FLAG_KEY
+        app.dependency_overrides[get_db] = lambda: session  # fixture session
+
+        fake_db_flag=FeatureFlag(flag_key=flag_key, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q, description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        session.add(fake_db_flag)
+        session.commit()
+
+        fake_db_rule=Rule(feature_flag_id=fake_db_flag.id, name=con.TEST_RULE_NAME, rule_type=con.TEST_RULE_TYPE, conditions=con.TEST_RULE_COND, enabled=True)
+        session.add(fake_db_rule)
+        session.commit()
+        endpoint += "/" + flag_key + "/" + EP_RULES + "/" + str(fake_db_rule.id)
+
+        request = {"name": con.TEST_RULE_NAME_ALT}
+        response=client.patch(endpoint, json=request)
+        data=response.json()
+
+        assert response.status_code == 200
+        assert data["name"]==request["name"]
+    finally:
+        app.dependency_overrides.clear()
+
+def test_patch_no_rule_failure(session, config):
+    """Verify the server patching given non-existing rule, valid request and returns status code 404."""
+    try:
+        client, endpoint = config
+        flag_key = con.TEST_GET_FLAG_KEY
+        app.dependency_overrides[get_db] = lambda: session  # fixture session
+
+        fake_db_flag=FeatureFlag(flag_key=flag_key, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q, description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        session.add(fake_db_flag)
+        session.commit()
+
+        endpoint += "/" + flag_key + "/" + EP_RULES + "/" + str(23)
+
+        request = {"name": con.TEST_RULE_NAME_ALT}
+        response=client.patch(endpoint, json=request)
+
+        assert response.status_code == 404
+    finally:
+        app.dependency_overrides.clear()
+
+def test_patch_pydantic_failure(session, config):
+    """Verify the server patching given existing rule, invalid data type request and returns status code 422."""
+    try:
+        client, endpoint = config
+        flag_key = con.TEST_GET_FLAG_KEY
+        app.dependency_overrides[get_db] = lambda: session  # fixture session
+
+        fake_db_flag=FeatureFlag(flag_key=flag_key, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q, description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        session.add(fake_db_flag)
+        session.commit()
+
+        fake_db_rule=Rule(feature_flag_id=fake_db_flag.id, name=con.TEST_RULE_NAME, rule_type=con.TEST_RULE_TYPE, conditions=con.TEST_RULE_COND, enabled=True)
+        session.add(fake_db_rule)
+        session.commit()
+        endpoint += "/" + flag_key + "/" + EP_RULES + "/" + str(fake_db_rule.id)
+
+        request = {"name": 1}
+        response=client.patch(endpoint, json=request)
+        data=response.json()
+
+        assert response.status_code == 422
+    finally:
+        app.dependency_overrides.clear()

@@ -61,7 +61,7 @@ class FlagResponse(BaseModel):
 
 class FlagDetailResponse(FlagResponse):
     """Serialized representation of a flag with rules as returned to clients."""
-    rules: list[RulesResponse] = []
+    rules: list[RuleResponse] = []
 
 class RuleCreate(BaseModel):
     """Payload for creating a new rule."""
@@ -72,13 +72,13 @@ class RuleCreate(BaseModel):
 
 class RuleUpdate(BaseModel):
     """Payload for partially updating an existing rule."""
-    name: str | None
-    rule_type: str | None
-    conditions: dict[str, Any] | None
-    enabled: bool | None
+    name: str | None = None
+    rule_type: str | None = None
+    conditions: dict[str, Any] | None = None
+    enabled: bool | None = None
     model_config = ConfigDict(extra="forbid")
 
-class RulesResponse(BaseModel):
+class RuleResponse(BaseModel):
     """Serialized representation of a rule as returned to clients.
 
     Attributes:
