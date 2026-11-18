@@ -175,15 +175,37 @@ def update_rule(flag_key:str, rule_id:int, rule_patch:RuleUpdate, session:Sessio
     if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_FLAG_KEY_FOUND)
 
     stmt = select(Rule).where(Rule.id == rule_id, Rule.feature_flag_id == feature_flag.id) # check both rule_id and flag_id match
-    rule = session.scalar(stmt)
-    if not rule: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_RULE_FOUND)
+    rules = session.scalar(stmt)
+    if not rules: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_RULE_FOUND)
 
     update_values=rule_patch.model_dump(exclude_unset=True)
     for k, v in update_values.items():
-        setattr(rule, k, v)
+        setattr(rules, k, v)
 
     session.commit()
-    session.refresh(rule)
-    return rule
+    session.refresh(rules)
+    return rules
 
+@router.get("/" + con.EP_FLAG_KEY + "/" + con.EP_RULES, response_model=list[RuleResponse], status_code=status.HTTP_200_OK)
+def get_rule(flag_key:str, session:Session=Depends(get_db)):
+    """Update a specific flag's rule(s) with optional parameters.
+
+    Args:
+        flag_key: Key to be updated given in the URL.
+        session: Database session injected via dependency.
+
+    Returns:
+        Updated rule.
+
+    Raises:
+        HTTPException: 404 Not Found, if no flag can not be found or rule belong to different flag.
+    """
+    stmt = select(FeatureFlag).where(FeatureFlag.flag_key == flag_key)
+    feature_flag=session.scalar(stmt)
+    if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_FLAG_KEY_FOUND)
+
+    stmt = select(Rule).where(Rule.feature_flag_id == feature_flag.id) # check flag_id match
+    rules = session.scalars(stmt).all()
+
+    return rules
 

@@ -384,3 +384,64 @@ def test_patch_pydantic_failure(session, config):
         assert response.status_code == 422
     finally:
         app.dependency_overrides.clear()
+
+def test_get_rule_success(session, config):
+    """Verify given existing rule and valid request, server returns status code 200 and correct rules."""
+    try:
+        client, endpoint = config
+        flag_key = con.TEST_GET_FLAG_KEY
+        app.dependency_overrides[get_db] = lambda: session  # fixture session
+
+        fake_db_flag=FeatureFlag(flag_key=flag_key, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q, description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        session.add(fake_db_flag)
+        session.commit()
+
+        fake_db_rule=Rule(feature_flag_id=fake_db_flag.id, name=con.TEST_RULE_NAME, rule_type=con.TEST_RULE_TYPE, conditions=con.TEST_RULE_COND, enabled=True)
+        session.add(fake_db_rule)
+        session.commit()
+        endpoint += "/" + flag_key + "/" + EP_RULES
+
+        response=client.get(endpoint)
+        data=response.json()
+
+        assert response.status_code == 200
+        assert data[0]['id']==fake_db_rule.id
+    finally:
+        app.dependency_overrides.clear()
+
+def test_get_rule_no_rule_success(session, config):
+    """Verify given non-existing rule and valid request, server returns status code 200 and correct rules."""
+    try:
+        client, endpoint = config
+        flag_key = con.TEST_GET_FLAG_KEY
+        app.dependency_overrides[get_db] = lambda: session  # fixture session
+
+        fake_db_flag=FeatureFlag(flag_key=flag_key, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q, description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        session.add(fake_db_flag)
+        session.commit()
+
+        endpoint += "/" + flag_key + "/" + EP_RULES
+
+        response=client.get(endpoint)
+        data=response.json()
+
+        assert response.status_code == 200
+        assert data==[]
+    finally:
+        app.dependency_overrides.clear()
+
+def test_get_rule_no_flag_failure(session, config):
+    """Verify given non-existing rule and flag, server returns status code 404 and empty data."""
+    try:
+        client, endpoint = config
+        flag_key = con.TEST_GET_FLAG_KEY
+        app.dependency_overrides[get_db] = lambda: session  # fixture session
+
+        endpoint += "/" + flag_key + "/" + EP_RULES
+        response=client.get(endpoint)
+        data=response.json()
+
+        assert response.status_code == 404
+        assert len(data)==1
+    finally:
+        app.dependency_overrides.clear()
