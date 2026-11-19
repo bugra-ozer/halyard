@@ -53,6 +53,27 @@ TEST_GET_FLAG_KEY="products_dashboard"
 TEST_FLAG_DESC="Dashboard that enables products to be discounted, removed, added, changed stocks."
 TEST_FLAG_TARGET_U=['2','5','425']
 TEST_RULE_NAME="UK_Beta"
+TEST_RULE_NAME_ALT="NTH_BETA"
 TEST_RULE_TYPE="attribute_match"
 TEST_RULE_COND={"user_country": "UK", "user_region": "England"}
 TEST_RULE_ENABLED=True
+
+     # POST /flags/{flag_key}/rules
+TEST_RULE_SUCCESS= \
+    {
+        "name": TEST_RULE_NAME,
+        "rule_type": TEST_RULE_TYPE,
+        "conditions": TEST_RULE_COND,
+        "enabled": True
+    }
+
+TEST_RULE_FAILURE= \
+    {
+        "name": "UK Beta Testers",
+        "rule_type": "attribute_match",
+        "conditions": {
+            "country": "UK",
+            "plan": "pro"
+        },
+        "enabled": 52
+    }

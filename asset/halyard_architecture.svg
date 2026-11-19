@@ -1,6 +1,6 @@
 <svg viewBox="0 0 1400 640" xmlns="http://www.w3.org/2000/svg" font-family="&quot;Anthropic Sans&quot;, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif">
   <title>Halyard architecture</title>
-  <desc>Two request paths meet at PostgreSQL. Admin path: Admin UI (JS) goes through JWT Auth to /flags (CRUD) and /rules (Builder), which both feed the SSE Broadcaster that pushes live updates. JWT Auth reads users, /rules reads and writes rules, /flags reads and writes feature_flags. SDK path: Client SDK goes through Key Hash to /evaluate and the Evaluator (SHA-256 plus rules), which returns True or False. Key Hash checks api_keys; the Evaluator reads rules and feature_flags. PostgreSQL holds users, api_keys, rules and feature_flags; rules.flag_id references feature_flags.</desc>
+  <desc>Two request paths meet at PostgreSQL. Admin path: Admin UI (JS) goes through JWT Auth to /flags and /flags/{flag_key}/rules. Both are REST resources driven by the HTTP methods POST, GET, PATCH and DELETE, and both feed the SSE Broadcaster that pushes live updates. JWT Auth reads users, /flags/{flag_key}/rules reads and writes rules, /flags reads and writes feature_flags. SDK path: Client SDK goes through Key Hash to /evaluate and the Evaluator (SHA-256 plus rules), which returns True or False. Key Hash checks api_keys; the Evaluator reads rules and feature_flags. PostgreSQL holds users, api_keys, rules and feature_flags; rules.flag_id references feature_flags.</desc>
   <defs>
     <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M2 1L8 5L2 9" fill="none" stroke="#93c5fd" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -17,10 +17,10 @@
   <g fill="none" stroke="#a9a79c" stroke-width="1.2" stroke-linejoin="round" marker-end="url(#arrow-grey)">
     <!-- JWT Auth -> users -->
     <path d="M300,163 V346" />
-    <!-- /rules -> rules -->
-    <path d="M530,223 V262 H865 V346" />
+    <!-- /flags/{flag_key}/rules -> rules -->
+    <path d="M555,229 V262 H865 V346" />
     <!-- /flags -> feature_flags (clear route over the lane, nothing crossed) -->
-    <path d="M530,57 V30 H1195 V346" />
+    <path d="M555,51 V30 H1195 V346" />
     <!-- Key Hash -> api_keys -->
     <path d="M520,557 V442" />
     <!-- Evaluator -> rules -->
@@ -36,28 +36,33 @@
     <path d="M400,80 V200"/>
     <line x1="400" y1="80" x2="440" y2="80" marker-end="url(#arrow-blue)"/>
     <line x1="400" y1="200" x2="440" y2="200" marker-end="url(#arrow-blue)"/>
-    <path d="M620,80 H665 V200 H620"/>
-    <line x1="665" y1="140" x2="715" y2="140" marker-end="url(#arrow-blue)"/>
-    <line x1="915" y1="140" x2="965" y2="140" marker-end="url(#arrow-blue)"/>
+    <path d="M670,80 H710 V200 H670"/>
+    <line x1="710" y1="140" x2="760" y2="140" marker-end="url(#arrow-blue)"/>
+    <line x1="960" y1="140" x2="1000" y2="140" marker-end="url(#arrow-blue)"/>
   </g>
   <circle cx="400" cy="140" r="3" fill="#93c5fd"/>
-  <circle cx="665" cy="140" r="3" fill="#93c5fd"/>
+  <circle cx="710" cy="140" r="3" fill="#93c5fd"/>
 
   <g fill="rgba(147,197,253,0.06)" stroke="#93c5fd" stroke-width="1.2">
     <rect x="40"  y="117" width="150" height="46" rx="8"/>
     <rect x="240" y="117" width="120" height="46" rx="8"/>
-    <rect x="440" y="57"  width="180" height="46" rx="8"/>
-    <rect x="440" y="177" width="180" height="46" rx="8"/>
-    <rect x="715" y="117" width="200" height="46" rx="8" fill="rgba(147,197,253,0.16)" stroke-width="1.8"/>
-    <rect x="965" y="117" width="140" height="46" rx="8"/>
+    <rect x="440" y="51"  width="230" height="58" rx="8"/>
+    <rect x="440" y="171" width="230" height="58" rx="8"/>
+    <rect x="760" y="117" width="200" height="46" rx="8" fill="rgba(147,197,253,0.16)" stroke-width="1.8"/>
+    <rect x="1000" y="117" width="140" height="46" rx="8"/>
   </g>
   <g font-size="18" fill="rgb(250,249,245)" text-anchor="middle">
     <text x="115"  y="146">Admin UI (JS)</text>
     <text x="300"  y="146">JWT Auth</text>
-    <text x="530"  y="86">/flags (CRUD)</text>
-    <text x="530"  y="206">/rules (Builder)</text>
-    <text x="815"  y="146" font-weight="bold" fill="#93c5fd">SSE Broadcaster</text>
-    <text x="1035" y="146">Live Push</text>
+    <text x="555"  y="77">/flags</text>
+    <text x="555"  y="197">/flags/{flag_key}/rules</text>
+    <text x="860"  y="146" font-weight="bold" fill="#93c5fd">SSE Broadcaster</text>
+    <text x="1070" y="146">Live Push</text>
+  </g>
+  <!-- REST methods per route -->
+  <g font-size="13" fill="rgb(194,192,182)" text-anchor="middle">
+    <text x="555" y="97">POST · GET · PATCH · DELETE</text>
+    <text x="555" y="217">POST · GET · PATCH · DELETE</text>
   </g>
 
   <!-- ============ database group ============ -->

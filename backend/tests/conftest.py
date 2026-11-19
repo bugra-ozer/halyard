@@ -16,7 +16,7 @@ def db_connection(test_engine: Engine)->Generator[Connection, None, None]:
         yield con
 
 @pytest.fixture(scope="function")
-def db_session(db_connection:Connection)->Generator[Session, None, None]:
+def session(db_connection:Connection)->Generator[Session, None, None]:
     """Interrupts all transactions and rolls back DB to default state."""
     transaction = db_connection.begin()
     session = Session(bind=db_connection)
