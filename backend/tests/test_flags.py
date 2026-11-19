@@ -316,6 +316,8 @@ def test_create_rule_pydantic_failure(session, config):
     finally:
         app.dependency_overrides.clear()
 
+# PATCH RULE
+
 def test_patch_rule_success(session, config):
     """Verify the server patching given existing rule, valid request and returns status code 200."""
     try:
@@ -379,11 +381,12 @@ def test_patch_pydantic_failure(session, config):
 
         request = {"name": 1}
         response=client.patch(endpoint, json=request)
-        data=response.json()
 
         assert response.status_code == 422
     finally:
         app.dependency_overrides.clear()
+
+# GET RULE
 
 def test_get_rule_success(session, config):
     """Verify given existing rule and valid request, server returns status code 200 and correct rules."""
@@ -445,6 +448,8 @@ def test_get_rule_no_flag_failure(session, config):
         assert len(data)==1
     finally:
         app.dependency_overrides.clear()
+
+# DELETE RULE
 
 def test_delete_rule_success(session, config):
     """Verify given existing rule and flag, server deletes the rule and returns status code 204."""
