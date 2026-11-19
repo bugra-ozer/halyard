@@ -445,3 +445,51 @@ def test_get_rule_no_flag_failure(session, config):
         assert len(data)==1
     finally:
         app.dependency_overrides.clear()
+
+def test_delete_rule_success(session, config):
+    """Verify given existing rule and flag, server deletes the rule and returns status code 204."""
+    try:
+        client, endpoint = config
+        flag_key = con.TEST_GET_FLAG_KEY
+        app.dependency_overrides[get_db] = lambda: session  # fixture session
+
+        fake_db_flag=FeatureFlag(flag_key=flag_key, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q, description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        session.add(fake_db_flag)
+        session.commit()
+
+        fake_db_rule=Rule(feature_flag_id=fake_db_flag.id, name=con.TEST_RULE_NAME, rule_type=con.TEST_RULE_TYPE, conditions=con.TEST_RULE_COND, enabled=True)
+        session.add(fake_db_rule)
+        session.commit()
+        endpoint += "/" + flag_key + "/" + EP_RULES + "/" + str(fake_db_rule.id)
+
+        response=client.delete(endpoint)
+        stmt = select(Rule).where(Rule.id == fake_db_rule.id)
+        rule = session.scalar(stmt)
+
+        assert rule is None
+        assert response.status_code == 204
+    finally:
+        app.dependency_overrides.clear()
+
+def test_delete_rule_failure(session, config):
+    """Verify deleting a non-existing rule returns 404."""
+    try:
+        client, endpoint = config
+        flag_key = con.TEST_GET_FLAG_KEY
+        app.dependency_overrides[get_db] = lambda: session  # fixture session
+
+        fake_db_flag = FeatureFlag(flag_key=flag_key, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q,
+                                   description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        session.add(fake_db_flag)
+        session.commit()
+
+        endpoint += "/" + flag_key + "/" + EP_RULES + "/" + str(25)
+
+        response = client.delete(endpoint)
+        stmt = select(Rule).where(Rule.id == 25)
+        rule = session.scalar(stmt)
+
+        assert rule is None
+        assert response.status_code == 404
+    finally:
+        app.dependency_overrides.clear()

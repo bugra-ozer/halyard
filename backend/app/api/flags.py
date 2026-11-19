@@ -107,7 +107,7 @@ def delete_flag(flag_key:str, session:Session=Depends(get_db)):
         session: Database session injected via dependency.
 
     Returns:
-        Deleted flag.
+        None on success.
 
     Raises:
         HTTPException: 404 Not Found, if no flag can not be found.
@@ -155,13 +155,13 @@ def create_rule(flag_key:str, schema: RuleCreate, session:Session=Depends(get_db
     return rule_orm
 
 @router.patch("/" + con.EP_FLAG_KEY + "/" + con.EP_RULES + "/" + con.EP_RULE_ID, response_model=RuleResponse, status_code=status.HTTP_200_OK)
-def update_rule(flag_key:str, rule_id:int, rule_patch:RuleUpdate, session:Session=Depends(get_db)):
+def update_rule(flag_key:str, rule_id:int, patch_schema:RuleUpdate, session:Session=Depends(get_db)):
     """Update a specific flag's rule(s) with optional parameters.
 
     Args:
         rule_id: Rule identifier.
         flag_key: Key to be updated given in the URL.
-        rule_patch: Incoming rule schema object.
+        patch_schema: Incoming rule schema object.
         session: Database session injected via dependency.
 
     Returns:
@@ -178,7 +178,7 @@ def update_rule(flag_key:str, rule_id:int, rule_patch:RuleUpdate, session:Sessio
     rules = session.scalar(stmt)
     if not rules: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_RULE_FOUND)
 
-    update_values=rule_patch.model_dump(exclude_unset=True)
+    update_values=patch_schema.model_dump(exclude_unset=True)
     for k, v in update_values.items():
         setattr(rules, k, v)
 
@@ -209,3 +209,29 @@ def get_rule(flag_key:str, session:Session=Depends(get_db)):
 
     return rules
 
+@router.delete("/" + con.EP_FLAG_KEY + "/" + con.EP_RULES + "/" + con.EP_RULE_ID, status_code=status.HTTP_204_NO_CONTENT)
+def delete_rule(flag_key:str, rule_id:int, session:Session=Depends(get_db)):
+    """Delete a specific rule with optional parameters.
+
+    Args:
+        flag_key: Key to be updated given in the URL.
+        rule_id: Rule identifier.
+        session: Database session injected via dependency.
+
+    Returns:
+        None on success.
+
+    Raises:
+        HTTPException: 404 Not Found, if no flag can not be found.
+    """
+    stmt = select(FeatureFlag).where(FeatureFlag.flag_key == flag_key)
+    feature_flag=session.scalar(stmt)
+    if not feature_flag: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_FLAG_KEY_FOUND)
+
+    stmt = select(Rule).where(Rule.id == rule_id, Rule.feature_flag_id == feature_flag.id) # check both rule_id and flag_id match
+    rules = session.scalar(stmt)
+    if not rules: raise HTTPException(status.HTTP_404_NOT_FOUND, detail=con.ERROR_NO_RULE_FOUND)
+
+    session.delete(rules)
+    session.commit()
+    return None
