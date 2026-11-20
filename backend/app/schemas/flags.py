@@ -1,6 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Any
+from app.core.enums import RuleType
 
 class FlagCreate(BaseModel):
     """A feature flag as supplied by a client.
@@ -66,14 +67,14 @@ class FlagDetailResponse(FlagResponse):
 class RuleCreate(BaseModel):
     """Payload for creating a new rule."""
     name: str
-    rule_type: str
+    rule_type: RuleType
     conditions: dict[str, Any]
     enabled: bool = True
 
 class RuleUpdate(BaseModel):
     """Payload for partially updating an existing rule."""
     name: str | None = None
-    rule_type: str | None = None
+    rule_type: RuleType | None = None
     conditions: dict[str, Any] | None = None
     enabled: bool | None = None
     model_config = ConfigDict(extra="forbid")
@@ -95,7 +96,7 @@ class RuleResponse(BaseModel):
     id: int
     feature_flag_id: int
     name: str
-    rule_type: str
+    rule_type: RuleType
     conditions: dict[str, Any]
     enabled: bool
     created_at: datetime
