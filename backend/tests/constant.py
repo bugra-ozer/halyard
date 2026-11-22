@@ -5,15 +5,75 @@ TEST_USER_ID_EMPTY=""
 TEST_TARGET_EXC={TEST_USER_STR}
 TEST_TARGET_INC= {TEST_USER_STR, TEST_USER_ID}
 TEST_FLAG_KEY= "feat_click"
-TEST_FALLOUT_Q=25
-TEST_FALLOUT_Q2=50
-TEST_FALLOUT_MAX=100
-TEST_FALLOUT_MIN=0
+TEST_ROLLOUT_Q=25
+TEST_ROLLOUT_Q2=50
+TEST_ROLLOUT_MAX=100
+TEST_ROLLOUT_MIN=0
 
 
-#Strings
+#Keys
 KEY_EXC= "target_user_exc"
 KEY_INC= "target_user_inc"
 KEY_USER_ID= "user_id"
 KEY_EVALUATOR= "evaluator"
 KEY_FLAG_KEY="flag_key"
+KEY_RULES="rules"
+KEY_ID="id"
+KEY_ENABLED="enabled"
+KEY_ROLLOUT_PERCENTAGE="rollout_percentage"
+KEY_TARGET_USERS="target_users"
+KEY_DESCRIPTION="description"
+KEY_CONDITIONS="conditions"
+KEY_NAME="name"
+KEY_RULE_TYPE="rule_type"
+
+# Test flags
+
+    # POST /flags
+TEST_FLAG_SUCCESS=\
+    {
+  "flag_key": "beta_dashboard",
+  "enabled": True,
+  "rollout_percentage": 100
+    }
+TEST_FLAG_PYDANTIC_FAIL_ONE=\
+    {
+  "flag_key": "beta_dashboard",
+  "enabled": True,
+  "rollout_percentage": 200
+    }
+TEST_FLAG_PYDANTIC_FAIL_TWO=\
+    {
+  "enabled": True,
+  "rollout_percentage": 100
+    }
+
+    #GET /flags/flag_key
+TEST_GET_FLAG_KEY="products_dashboard"
+TEST_FLAG_DESC="Dashboard that enables products to be discounted, removed, added, changed stocks."
+TEST_FLAG_TARGET_U=['2','5','425']
+TEST_RULE_NAME="UK_Beta"
+TEST_RULE_NAME_ALT="NTH_BETA"
+TEST_RULE_TYPE="attribute_match"
+TEST_RULE_COND={"user_country": "UK", "user_region": "England"}
+TEST_RULE_ENABLED=True
+
+     # POST /flags/{flag_key}/rules
+TEST_RULE_SUCCESS= \
+    {
+        "name": TEST_RULE_NAME,
+        "rule_type": TEST_RULE_TYPE,
+        "conditions": TEST_RULE_COND,
+        "enabled": True
+    }
+
+TEST_RULE_FAILURE= \
+    {
+        "name": "UK Beta Testers",
+        "rule_type": "attribute_match",
+        "conditions": {
+            "country": "UK",
+            "plan": "pro"
+        },
+        "enabled": 52
+    }

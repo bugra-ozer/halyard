@@ -1,5 +1,5 @@
 ![halyard](asset/halyard_logo_main.svg)
-> A production-grade zero-dependency feature flag engine.
+> A production-grade zero-dependency front-end feature flag engine.
 
 [![Backend CI](https://img.shields.io/github/actions/workflow/status/bugra-ozer/halyard/backend.yml?style=flat-square&logo=github&label=Backend)](https://github.com/bugra-ozer/halyard/actions/workflows/backend.yml)
 ![Python](https://img.shields.io/badge/Python-v3.14%2B-3776AB?style=flat-square&logo=python&logoColor=white&color=3776AB)
@@ -39,7 +39,7 @@ The dashboard and SDK are written in raw HTML5, CSS3, and vanilla ES6+ JavaScrip
 | Database Tools    |                                                |
 | Database Deploy   | PostgreSQL                                     |
 | Infra and Testing | Docker, `pytest`, GitHub Actions CI            |
-| Auth and Security | `bcrypt`, `PyJWT`, `secrets`, `hashlib`        |
+| Auth and Security | `bcrypt`, `PyJWT`, `secrets`, `passlib`        |
 | Config            | python-dotenv                                  |
 | Deployment        |                                                |
 
