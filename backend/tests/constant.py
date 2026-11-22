@@ -54,7 +54,7 @@ TEST_FLAG_DESC="Dashboard that enables products to be discounted, removed, added
 TEST_FLAG_TARGET_U=['2','5','425']
 TEST_RULE_NAME="UK_Beta"
 TEST_RULE_NAME_ALT="NTH_BETA"
-TEST_RULE_TYPE="attribute_match"
+TEST_RULE_TYPE="attribute"
 TEST_RULE_COND={"user_country": "UK", "user_region": "England"}
 TEST_RULE_ENABLED=True
 
