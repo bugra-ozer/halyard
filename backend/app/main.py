@@ -12,6 +12,7 @@ from fastapi import Depends
 from passlib.context import CryptContext
 from fastapi import HTTPException
 import jwt
+import os
 
 app=FastAPI()
 log_handler=logger.LogHandler()
@@ -27,7 +28,7 @@ app.include_router(flags_router)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-SECRET_KEY = "secret-key"
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 
 def create_refresh_token(username: str):
