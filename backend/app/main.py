@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timedelta, UTC
 from fastapi import FastAPI
 from app.constant import constant as con
 from app.core import logger
@@ -30,13 +30,46 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = "secret-key"
 ALGORITHM = "HS256"
 
+def create_refresh_token(username: str):
+    """Create a JWT refresh token for a user.
+
+        Args:
+            username: Username to encode into the JWT.
+
+        Returns:
+            Encoded JWT refresh token.
+        """
+    payload = {"sub": username, "type": "refresh", "exp": datetime.now(UTC) + timedelta(days=30)}
+    token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+    return token
+
 def create_access_token(username: str):
-    payload = {"sub": username, "exp": datetime.datetime.utcnow() + datetime.timedelta(days = 30)}
+    """Create a JWT access token for a user.
+
+    Args:
+        username: Username to encode into the JWT.
+
+    Returns:
+        Encoded JWT access token.
+    """
+    payload = {"sub": username, "type": "access", "exp": datetime.now(UTC) + timedelta(minutes=15)}
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     return token
 
 @app.post("/register", response_model=UserResponse)
 def register_user(registration: Registration, db: Session = Depends(get_db)):
+    """Registers a new user account.
+
+    Checks for duplicate usernames and email addresses before
+    creating and storing a new user.
+
+    Args:
+        registration: User registration payload.
+        db: Active SQLAlchemy session.
+
+    Returns:
+        The new created user.
+    """
     user = get_user_by_username(db, registration.username)
     email = get_user_by_email(db, registration.email)
     if user:
@@ -51,6 +84,16 @@ def register_user(registration: Registration, db: Session = Depends(get_db)):
 
 @app.post("/login")
 def login_user(login: Login, db: Session = Depends(get_db)):
+    """Authenticates a user and return both a JWT access and refresh token.
+
+    Args:
+        login: User login credentials.
+        db: Active SQLAlchemy session.
+
+    Returns:
+        JWT access and refresh token.
+        token type for authenticated users.
+    """
     user = get_user_by_username(db, login.username)
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -58,6 +101,7 @@ def login_user(login: Login, db: Session = Depends(get_db)):
     if not pwd_context.verify(login.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Unauthorized")
 
-    token = create_access_token(user.username)
-    return {"access_token": token, "token_type": "bearer"}
+    access_token = create_access_token(user.username)
+    refresh_token = create_refresh_token(user.username)
+    return {"access_token": access_token, "token_type": "bearer", "refresh_token": refresh_token}
 

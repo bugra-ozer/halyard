@@ -124,6 +124,16 @@ def update_flag(db: Session, flag_key:str, update_data:FlagUpdate)->FeatureFlag|
     return db_flag
 
 def create_user(db, registration, hashed_password):
+    """Creates a new user account.
+
+    Args:
+        db: Active SQLAlchemy session.
+        registration: Registration payload containing username, email, and password.
+        hashed_password: Securely hashed password.
+
+    Returns:
+        The persisted User instance.
+    """
     username = registration.username
     email = registration.email
 
@@ -135,9 +145,27 @@ def create_user(db, registration, hashed_password):
     return db_user
 
 def get_user_by_username(db: Session, username: str):
+    """Finds and returns a user by username.
+
+    Args:
+        db: Active SQLAlchemy session.
+        username: Username being searched for.
+
+    Returns:
+        The matching User instance, or None if not found.
+    """
     stmt = select(User).where(User.username == username)
     return db.scalar(stmt)
 
 def get_user_by_email(db: Session, email: str):
+    """Finds and returns a user by email address.
+
+    Args:
+        db: Active SQLAlchemy session.
+        email: Email address being searched for.
+
+    Returns:
+        The matching User, or None if match not found.
+    """
     stmt = select(User).where(User.email == email)
     return db.scalar(stmt)
