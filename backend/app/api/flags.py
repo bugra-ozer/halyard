@@ -145,7 +145,7 @@ def create_rule(flag_key:str, schema: RuleCreate, session:Session=Depends(get_db
     rule_orm = Rule(feature_flag_id=feature_flag.id,
                     name=schema.name,
                     rule_type=schema.rule_type,
-                    conditions=schema.conditions,
+                    conditions=schema.conditions.model_dump(),
                     enabled=schema.enabled,
                     )
     session.add(rule_orm)

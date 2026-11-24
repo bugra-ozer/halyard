@@ -1,7 +1,23 @@
+import operator
 from datetime import datetime
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 from typing import Any
-from app.core.enums import RuleType
+from app.core.enums import RuleType, Operator
+
+class EvalRequest(BaseModel):
+    """Input to the flag-evaluation endpoint.
+
+    Asks "should ``user_id`` see ``flag_key`` right now?" — the answer is
+    computed, not stored.
+
+    Attributes:
+        flag_key: The flag to evaluate.
+        user_id: The user whose exposure is being decided. Used for explicit
+            targeting checks and as the rollout bucket key (so the same user
+            gets a stable answer for a given flag).
+    """
+    flag_key: str
+    user_id: str
 
 class FlagCreate(BaseModel):
     """A feature flag as supplied by a client.
@@ -65,19 +81,34 @@ class FlagDetailResponse(FlagResponse):
     rules: list[RuleResponse] = []
 
 class RuleCreate(BaseModel):
-    """Payload for creating a new rule."""
+    """Serialized representation for creating a new rule."""
     name: str
     rule_type: RuleType
-    conditions: dict[str, Any]
+    conditions: UserListConditions | AttributeConditions | PercentageConditions
     enabled: bool = True
 
+    @model_validator(mode='after')
+    def check_conditions(self):
+        required = RULE_TYPE_CONDITION_MAP[self.rule_type] # extract the pydantic built
+        if not isinstance(self.conditions, required): raise ValueError(f'Conditions and rule type mismatch. Conditions: {self.conditions}, Rule_type: {self.rule_type}')
+        return self
+
 class RuleUpdate(BaseModel):
-    """Payload for partially updating an existing rule."""
+    """Serialized representation for partially updating an existing rule."""
     name: str | None = None
     rule_type: RuleType | None = None
-    conditions: dict[str, Any] | None = None
+    conditions: UserListConditions | AttributeConditions | PercentageConditions | None = None
     enabled: bool | None = None
     model_config = ConfigDict(extra="forbid")
+
+    @model_validator(mode='after')
+    def check_conditions(self):
+        if (self.conditions is None) != (self.rule_type is None): # only one is None
+            raise ValueError(f'Conditions and rule type are tightly coupled and one is invalid. Conditions: {self.conditions}, Rule_type: {self.rule_type}')
+        elif self.rule_type is not None and self.conditions is not None:
+            required = RULE_TYPE_CONDITION_MAP[self.rule_type] # extract the pydantic built
+            if not isinstance(self.conditions, required): raise ValueError(f'Conditions and rule type mismatch. Conditions: {self.conditions}, Rule_type: {self.rule_type}')
+        return self
 
 class RuleResponse(BaseModel):
     """Serialized representation of a rule as returned to clients.
@@ -97,22 +128,41 @@ class RuleResponse(BaseModel):
     feature_flag_id: int
     name: str
     rule_type: RuleType
-    conditions: dict[str, Any]
+    conditions: UserListConditions | AttributeConditions | PercentageConditions
     enabled: bool
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
 
-class EvalRequest(BaseModel):
-    """Input to the flag-evaluation endpoint.
+# Condition schema
 
-    Asks "should ``user_id`` see ``flag_key`` right now?" — the answer is
-    computed, not stored.
+class UserListConditions(BaseModel):
+    """Serialized representation of a condition user lists."""
+    user_ids: list[str]
+    model_config = ConfigDict(extra="forbid")
 
-    Attributes:
-        flag_key: The flag to evaluate.
-        user_id: The user whose exposure is being decided. Used for explicit
-            targeting checks and as the rollout bucket key (so the same user
-            gets a stable answer for a given flag).
-    """
-    flag_key: str
-    user_id: str
+class AttributeClause(BaseModel):
+    """Serialized representation of a condition attributes' internals."""
+    field: str
+    operator: Operator
+    value : str | list[str]
+    model_config = ConfigDict(extra="forbid")
+
+    @model_validator(mode="after")
+    def check_in(self):
+        if self.operator is Operator.IN:
+            if not isinstance(self.value, list) or len(self.value)<1: raise ValueError(f'Operator and value are tightly coupled and one is invalid. Operator: {self.operator}, Value: {self.value}')
+        else:
+            if not isinstance(self.value, str): raise ValueError(f'Operator and value are tightly coupled and one is invalid. Operator: {self.operator}, Value: {self.value}')
+        return self
+
+class AttributeConditions(BaseModel):
+    """Serialized representation of a condition attributes."""
+    clauses: list[AttributeClause] = Field(min_length=1)
+    model_config = ConfigDict(extra="forbid")
+
+class PercentageConditions(BaseModel):
+    """Serialized representation of a condition percentage."""
+    percentage: int = Field(ge=0, le=100)
+    model_config = ConfigDict(extra="forbid")
+
+RULE_TYPE_CONDITION_MAP={RuleType.USER_LIST: UserListConditions, RuleType.ATTRIBUTE: AttributeConditions, RuleType.PERCENTAGE: PercentageConditions}

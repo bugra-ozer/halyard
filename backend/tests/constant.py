@@ -55,7 +55,16 @@ TEST_FLAG_TARGET_U=['2','5','425']
 TEST_RULE_NAME="UK_Beta"
 TEST_RULE_NAME_ALT="NTH_BETA"
 TEST_RULE_TYPE="attribute"
-TEST_RULE_COND={"user_country": "UK", "user_region": "England"}
+TEST_RULE_COND= \
+    {
+        "clauses": [
+            {
+            "field": "user_country",
+            "operator": "equals",
+            "value": "UK"
+            }
+        ]
+    }
 TEST_RULE_ENABLED=True
 
      # POST /flags/{flag_key}/rules
@@ -67,7 +76,7 @@ TEST_RULE_SUCCESS= \
         "enabled": True
     }
 
-TEST_RULE_FAILURE= \
+TEST_RULE_INVALID_FAILURE= \
     {
         "name": "UK Beta Testers",
         "rule_type": "attribute_match",
@@ -76,4 +85,16 @@ TEST_RULE_FAILURE= \
             "plan": "pro"
         },
         "enabled": 52
+    }
+TEST_RULE_MISMATCH_FAILURE= \
+    {
+        "name": "UK Beta Testers",
+        "rule_type": "attribute",
+        "conditions":
+            {
+            "field": "user_country",
+            "operator": "equals",
+            "value": "UK"
+            },
+        "enabled": True
     }

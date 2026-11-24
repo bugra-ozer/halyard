@@ -301,7 +301,7 @@ def test_create_rule_no_flag_failure(session, config):
     finally:
         app.dependency_overrides.clear()
 
-def test_create_rule_pydantic_failure(session, config):
+def test_create_rule_invalid_failure(session, config):
     """Verify creating a rules with invalid payload returns 422."""
     try:
         client, endpoint = config
@@ -309,7 +309,30 @@ def test_create_rule_pydantic_failure(session, config):
         endpoint += "/" + flag_key + "/" + EP_RULES
         app.dependency_overrides[get_db] = lambda: session  # fixture session
 
-        request = con.TEST_RULE_FAILURE
+        fake_db_flag=FeatureFlag(flag_key=flag_key, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q, description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        session.add(fake_db_flag)
+        session.commit()
+
+        request = con.TEST_RULE_INVALID_FAILURE
+        response=client.post(endpoint, json=request)
+
+        assert response.status_code == 422
+    finally:
+        app.dependency_overrides.clear()
+
+def test_create_rule_mismatch_failure(session, config):
+    """Verify creating a rules with mismatched tightly coupled payload returns 422."""
+    try:
+        client, endpoint = config
+        flag_key = con.TEST_GET_FLAG_KEY
+        endpoint += "/" + flag_key + "/" + EP_RULES
+        app.dependency_overrides[get_db] = lambda: session  # fixture session
+
+        fake_db_flag=FeatureFlag(flag_key=flag_key, enabled=True, rollout_percentage=con.TEST_ROLLOUT_Q, description=con.TEST_FLAG_DESC, target_users=con.TEST_FLAG_TARGET_U)
+        session.add(fake_db_flag)
+        session.commit()
+
+        request = con.TEST_RULE_MISMATCH_FAILURE
         response=client.post(endpoint, json=request)
 
         assert response.status_code == 422
