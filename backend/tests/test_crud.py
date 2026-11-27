@@ -1,4 +1,6 @@
-from app.db.crud import create_flag
+from psycopg.types import none
+
+from app.db.crud import create_flag, get_flag_by_key
 from app.schemas.flags import FlagCreate
 from tests import constant as con
 
@@ -11,4 +13,14 @@ def test_create_flag(session):
     assert created_flag.flag_key == flag_data.flag_key
     assert created_flag.enabled == flag_data.enabled
 
+def test_get_flag_by_key(session):
+    """Verify getting a flag with valid data returns it."""
+    flag_data = FlagCreate(flag_key=con.TEST_FLAG_KEY, enabled = True)
+    created_flag = create_flag(session, flag_data)
 
+    retrieved_flag = get_flag_by_key(session, created_flag.flag_key)
+
+    assert retrieved_flag is not None
+    assert retrieved_flag.id == created_flag.id
+    assert retrieved_flag.flag_key == created_flag.flag_key
+    assert retrieved_flag.enabled == created_flag.enabled
