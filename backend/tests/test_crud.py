@@ -1,4 +1,4 @@
-from app.db.crud import create_flag, get_flag_by_key, get_flags
+from app.db.crud import create_flag, get_flag_by_key, get_flags, delete_flag
 from app.schemas.flags import FlagCreate
 from tests import constant as con
 
@@ -34,5 +34,15 @@ def test_get_flags(session):
     assert retrieved_flags[0].id == created_flag.id
     assert retrieved_flags[0].flag_key == created_flag.flag_key
     assert retrieved_flags[0].enabled == created_flag.enabled
+
+def test_delete_flag(session):
+    """Verify deleting a flag with valid data and removes it."""
+    flag_data = FlagCreate(flag_key=con.TEST_FLAG_KEY, enabled = True)
+    created_flag = create_flag(session, flag_data)
+
+    delete_flag(session, created_flag.flag_key)
+    retrieved_flag = get_flag_by_key(session, created_flag.flag_key)
+
+    assert retrieved_flag is None
     
 
