@@ -2,6 +2,11 @@ from app.db.crud import create_flag, get_flag_by_key, get_flags, delete_flag
 from app.schemas.flags import FlagCreate
 from tests import constant as con
 
+def make_flag(session, flag_key=con.TEST_FLAG_KEY, enabled=True):
+    flag_data = FlagCreate(flag_key=flag_key, enabled=enabled)
+    created_flag = create_flag(session, flag_data)
+    return created_flag
+
 def test_create_flag(session):
     """Verify creating a flag with valid data returns it."""
     flag_data = FlagCreate(flag_key=con.TEST_FLAG_KEY, enabled = True)
@@ -13,8 +18,7 @@ def test_create_flag(session):
 
 def test_get_flag_by_key(session):
     """Verify getting a flag with valid data returns it."""
-    flag_data = FlagCreate(flag_key=con.TEST_FLAG_KEY, enabled = True)
-    created_flag = create_flag(session, flag_data)
+    created_flag = make_flag(session)
 
     retrieved_flag = get_flag_by_key(session, created_flag.flag_key)
 
@@ -25,8 +29,7 @@ def test_get_flag_by_key(session):
 
 def test_get_flags(session):
     """Verify getting all flags with valid data returns it."""
-    flag_data = FlagCreate(flag_key=con.TEST_FLAG_KEY, enabled = True)
-    created_flag = create_flag(session, flag_data)
+    created_flag = make_flag(session)
 
     retrieved_flags = get_flags(session)
 
@@ -36,9 +39,8 @@ def test_get_flags(session):
     assert retrieved_flags[0].enabled == created_flag.enabled
 
 def test_delete_flag(session):
-    """Verify deleting a flag with valid data and removes it."""
-    flag_data = FlagCreate(flag_key=con.TEST_FLAG_KEY, enabled = True)
-    created_flag = create_flag(session, flag_data)
+    """Verify deleting a flag with valid data removes it."""
+    created_flag = make_flag(session)
 
     delete_flag(session, created_flag.flag_key)
     retrieved_flag = get_flag_by_key(session, created_flag.flag_key)
